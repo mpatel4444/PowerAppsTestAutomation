@@ -12,10 +12,10 @@ namespace Microsoft.PowerApps.TestAutomation.Tests
     public class RunTestSettings
     {
         public TestContext TestContext { get; set; }
-        private static TestContext _testContext;
-        private static BrowserType Type;
-        private static string DriversPath;
-        private static bool? UsePrivateMode;
+        public static TestContext _testContext;
+        public static BrowserType Type;
+        public static string DriversPath;
+        public static bool? UsePrivateMode;
 
        [ClassInitialize]
         public static void Initialize(TestContext TestContext)
