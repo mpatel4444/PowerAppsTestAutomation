@@ -154,7 +154,7 @@ namespace Microsoft.PowerApps.TestAutomation.Tests
                         Console.WriteLine($"Power Apps  Test Automation Execution Starting Test #{testRunCounter} of {testUrlCount}");
 
                         // Initialize TestFrameworok results JSON object
-                        public void JObject testAutomationResults = new JObject();
+                        JObject testAutomationResults = new JObject();
 
                         // Execute TestAutomation and return JSON result object
                         testAutomationResults = appBrowser.TestAutomation.ExecuteTestAutomation(_testAutomationUri, testRunCounter, _testMaxWaitTimeInSeconds);
