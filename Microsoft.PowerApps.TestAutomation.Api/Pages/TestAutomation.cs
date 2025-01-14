@@ -123,7 +123,7 @@ namespace Microsoft.PowerApps.TestAutomation.Api
             }
         }
 
-        internal JObject WaitForTestResults(IWebDriver driver, int maxWaitTimeInSeconds)
+        public JObject WaitForTestResults(IWebDriver driver, int maxWaitTimeInSeconds)
         {
             JObject jsonResultString = new JObject();
             jsonResultString = driver.WaitForTestResults(maxWaitTimeInSeconds);
