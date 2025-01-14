@@ -17,7 +17,7 @@ namespace Microsoft.PowerApps.TestAutomation.Tests
     {
         private static string _username = "";
         private static string _password = "";
-        private static BrowserType _browserType;
+        public static BrowserType _browserType;
         private static Uri _xrmUri;
         private static Uri _testAutomationUri;
         private static string _loginMethod;
