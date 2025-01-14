@@ -32,7 +32,7 @@ namespace Microsoft.PowerApps.TestAutomation.Tests
 
         public TestContext TestContext { get; set; }
 
-        private static TestContext _testContext;
+        public static TestContext _testContext;
 
         [ClassInitialize]
         public static void Initialize(TestContext TestContext)
