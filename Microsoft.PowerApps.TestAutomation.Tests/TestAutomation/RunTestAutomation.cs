@@ -31,6 +31,7 @@ namespace Microsoft.PowerApps.TestAutomation.Tests
         private static int _testMaxWaitTimeInSeconds = 600;
 
         public TestContext TestContext { get; set; }
+        public void JObject { get; set; }
 
         private static TestContext _testContext;
 
