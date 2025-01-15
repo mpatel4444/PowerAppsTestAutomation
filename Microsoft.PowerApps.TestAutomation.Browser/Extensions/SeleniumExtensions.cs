@@ -18,7 +18,7 @@ using SeleniumExtras.WaitHelpers;
 
 namespace Microsoft.PowerApps.TestAutomation.Browser
 {
-    public static class SeleniumExtensions 
+    public static class SeleniumExtensions
     {
         #region Click
 
@@ -163,6 +163,26 @@ namespace Microsoft.PowerApps.TestAutomation.Browser
                     $"The driver type '{driver.GetType().FullName}' does not support Javascript execution.");
 
             return scriptExecutor.ExecuteScript(script, args);
+        }
+
+        [DebuggerNonUserCode()]
+        public static JObject GetJsonObject(this IWebDriver driver, string @object)
+        {
+            @object = SanitizeReturnStatement(@object);
+
+            var results = ExecuteScript(driver, $"return JSON.stringify({@object});").ToString();
+
+            return JObject.Parse(results);
+        }
+
+        [DebuggerNonUserCode()]
+        public static JArray GetJsonArray(this IWebDriver driver, string @object)
+        {
+            @object = SanitizeReturnStatement(@object);
+
+            var results = ExecuteScript(driver, $"return JSON.stringify({@object});").ToString();
+
+            return JArray.Parse(results);
         }
 
         [DebuggerNonUserCode()]
@@ -385,14 +405,9 @@ namespace Microsoft.PowerApps.TestAutomation.Browser
             return WaitForPageToLoad(driver, Constants.DefaultTimeout.Seconds);
         }
 
-        public static Object WaitForTestResults(this IWebDriver driver)
+        public static JObject WaitForTestResults(this IWebDriver driver)
         {
             return WaitForTestResults(driver, Constants.DefaultTimeout.Seconds);
-        }
-
-        private static object WaitForTestResults(IWebDriver driver, int seconds)
-        {
-            throw new NotImplementedException();
         }
 
         public static bool WaitForTransaction(this IWebDriver driver)
@@ -487,6 +502,67 @@ namespace Microsoft.PowerApps.TestAutomation.Browser
             }
 
             return state;
+        }
+
+        public static JObject WaitForTestResults(this IWebDriver driver, int maxWaitTimeInSeconds)
+        {
+            // Wait for app frame
+            driver.WaitUntilVisible(By.Id("fullscreen-app-host"), TimeSpan.FromSeconds(10));
+
+            // Switch to app frame
+            driver.SwitchTo().Frame("fullscreen-app-host");
+
+            // Define for current state of TestExecution
+            int testExecutionState = 0;
+            bool state = false;
+            JObject jsonResultString = new JObject();
+
+            try
+            {
+                //Poll every half second to see if UCI is idle
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(maxWaitTimeInSeconds));
+                wait.Until(d =>
+                {
+                    try
+                    {
+                        // Check to see if ExecutionState is Complete(2) or Error(3)
+                        jsonResultString = driver.GetJsonObject("AppMagic.TestStudio.GetTestExecutionInfo()");
+                        testExecutionState = (int)jsonResultString.GetValue("ExecutionState");
+
+                        if (testExecutionState == 0 || testExecutionState == 1)
+                        {
+                            state = false;
+                        }
+                        else if (testExecutionState == 2 || testExecutionState == 3)
+                        {
+
+                            state = true;
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        Debug.WriteLine($"jsonResultString is {jsonResultString}.");
+                        throw new Exception($"A timeout occurred while attempting to retrieve the ExecutionState of the current test. Current Execution State is: {testExecutionState}");
+                    }
+                    catch (NullReferenceException)
+                    {
+
+                    }
+
+                    return state;
+                });
+            }
+            catch (TimeoutException te)
+            {
+                throw new Exception($"A timeout occurred while attempting to retrieve the ExecutionState of the current test. {te}");
+            }
+            catch (Exception)
+            {
+
+            }
+
+            Debug.WriteLine($"jsonResultString is {jsonResultString}.");
+            return jsonResultString;
         }
 
         public static bool WaitForTransaction(this IWebDriver driver, int maxWaitTimeInSeconds)
